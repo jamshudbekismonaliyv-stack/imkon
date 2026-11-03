@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="uz" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imkon — Yordamchi, Kunlik Ishlar va Xizmatlar Portali</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col">
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- STICKY TOP NAVBAR -->
+  <header class="sticky top-0 z-50 glass border-b border-slate-200/80 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-8">
+          <a href="#" onclick="switchTab('home')" class="flex items-center gap-2.5 group">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+              <span class="text-2xl font-black">I</span>
+            </div>
+            <div>
+              <span class="text-2xl font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">Imkon<span class="text-emerald-500">.</span></span>
+              <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 -mt-1">Yordamchi & Kunlik Ishlar</span>
+            </div>
+          </a>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+            <button data-tab-target="home" class="nav-link active px-3.5 py-2 rounded-xl text-sm font-semibold hover:text-indigo-600 transition-colors">
+              Bosh sahifa
+            </button>
+            <button data-tab-target="jobs" class="nav-link px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors flex items-center gap-1.5">
+              <span>Ish topish</span>
+              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">150 ming/kun</span>
+            </button>
+            <button data-tab-target="helpers" class="nav-link px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors flex items-center gap-1.5">
+              <span>Yordamchilar</span>
+              <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">Farg‘ona</span>
+            </button>
+            <button data-tab-target="education" class="nav-link px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">
+              Qo‘llanmalar
+            </button>
+            <button data-tab-target="dashboard" class="nav-link px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">
+              Shaxsiy kabinet
+            </button>
+          </nav>
+        </div>
+
+        <!-- Right Quick Actions -->
+        <div class="hidden sm:flex items-center gap-3">
+          
+          <!-- Yordamchi chaqirish / E'lon berish -->
+          <button onclick="openPostOpportunityModal()" class="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-100 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Yordamchi chaqirish (E'lon berish)</span>
+          </button>
+
+          <!-- Bookmarks -->
+          <button onclick="switchTab('dashboard'); switchDashboardTab('saved');" class="relative p-2.5 rounded-2xl border border-slate-200 hover:border-rose-200 hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition-all" title="Saqlangan ishlar">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+            <span class="saved-counter-badge absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">2</span>
+          </button>
+
+          <!-- Notification Bell -->
+          <button onclick="switchTab('dashboard'); switchDashboardTab('notifications');" class="relative p-2.5 rounded-2xl border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-all" title="Bildirishnomalar">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span class="notif-counter-badge absolute -top-1 -right-1 w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">2</span>
+          </button>
+
+          <!-- User Trigger -->
+          <button onclick="switchTab('dashboard')" class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-slate-200 hover:border-indigo-300 hover:bg-slate-50 transition-all">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center text-xs font-bold">Sh</div>
+            <span class="text-xs font-bold text-slate-800">Sherzod</span>
+          </button>
+        </div>
+
+        <!-- Mobile Toggle -->
+        <button id="mobile-menu-btn" class="md:hidden p-2.5 rounded-2xl border border-slate-200 text-slate-700 hover:bg-slate-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 pt-3 pb-6 space-y-2">
+      <button data-tab-target="home" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Bosh sahifa</button>
+      <button data-tab-target="jobs" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Ish topish (150 ming/kun)</button>
+      <button data-tab-target="helpers" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Yordamchilar (Farg‘ona)</button>
+      <button data-tab-target="education" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Qo‘llanmalar</button>
+      <button data-tab-target="dashboard" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Shaxsiy kabinet</button>
+      <div class="pt-2">
+        <button onclick="openPostOpportunityModal()" class="w-full py-3 rounded-2xl bg-indigo-600 text-white text-xs font-bold text-center">Yordamchi chaqirish (+)</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-grow">
+
+    <!-- ========================================== -->
+    <!-- 1. BOSH SAHIFA (HOME VIEW)                 -->
+    <!-- ========================================== -->
+    <section id="view-home" class="view-section">
+      
+      <!-- HERO SECTION: DOSKADAGI G'OYA BILAN TO'G'RIDAN-TO'G'RI UYG'UNLASHGAN -->
+      <div class="relative overflow-hidden pt-10 pb-16 lg:pt-14 lg:pb-24 border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-6">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Farg‘ona viloyati va hududlar bo‘yicha tezkor yordamchilar portali</span>
+          </div>
+
+          <!-- Hero Main Title -->
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight max-w-4xl mx-auto leading-tight">
+            Kerakli <span class="text-gradient">yordamchini toping</span> yoki kunlik <span class="text-emerald-600">150 ming so‘mgacha</span> ishlang!
+          </h1>
+
+          <!-- Hero Subtitle: Explaining the 3 Whiteboard Pillars -->
+          <p class="mt-4 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Uylarni tozalash, hovli va do‘kon ishlari. <strong>Necha soat ishlashi aniq</strong>, <strong>bir kunda 150 ming gacha to‘lov</strong> va <strong>Farg‘ona viloyati ichida</strong> aniq manzil bo‘yicha xizmat.
+          </p>
+
+          <!-- INTERACTIVE QUICK SELECTOR (Doskadagi 3 element asosida) -->
+          <div class="mt-10 max-w-4xl mx-auto bg-white p-4 sm:p-5 rounded-3xl shadow-xl shadow-indigo-500/10 border border-slate-200 text-left">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              
+              <!-- 1. Yordamchi vazifasi & Ish soati -->
+              <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                <label class="block text-[11px] font-black uppercase text-indigo-700 mb-1">1. Yordamchi vazifasi:</label>
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">🧹</span>
+                  <input type="text" id="hero-search-input" placeholder="Tozalaydi, yuk tashiydi..." class="bg-transparent text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none w-full">
+                </div>
+                <span class="text-[10px] text-slate-400 mt-1 block">⏱️ Necha soat ishlashi aniq (3-8 soat)</span>
+              </div>
+
+              <!-- 2. Ish haqi -->
+              <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                <label class="block text-[11px] font-black uppercase text-emerald-700 mb-1">2. Ish haqi:</label>
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">💰</span>
+                  <span class="text-xs font-black text-slate-800">1 kunda 150 ming gacha</span>
+                </div>
+                <span class="text-[10px] text-emerald-600 mt-1 block font-bold">✓ Kun oxirida to‘liq to‘lanadi</span>
+              </div>
+
+              <!-- 3. Qayerga borish (Farg'ona viloyati) -->
+              <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                <label class="block text-[11px] font-black uppercase text-indigo-700 mb-1">3. Qayerga borish:</label>
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">📍</span>
+                  <select id="hero-city-select" class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none w-full cursor-pointer">
+                    <option value="all">Farg‘ona viloyati (Barchasi)</option>
+                    <option value="Farg‘ona">Farg‘ona shahar</option>
+                    <option value="Marg‘ilon">Marg‘ilon shahar</option>
+                    <option value="Qo‘qon">Qo‘qon shahar</option>
+                    <option value="Rishton">Rishton tumani</option>
+                    <option value="Quvasoy">Quvasoy shahar</option>
+                  </select>
+                </div>
+                <span class="text-[10px] text-slate-400 mt-1 block">Farg‘ona viloyati ichida ishlaydi</span>
+              </div>
+
+            </div>
+
+            <!-- Action Button -->
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div class="flex items-center gap-2 text-xs text-slate-500">
+                <span class="font-bold text-slate-700">Tezkor tanlov:</span>
+                <button onclick="activeJobFilters.category = 'tozalash'; switchTab('jobs'); renderJobsList();" class="text-indigo-600 hover:underline font-semibold">Uylarni tozalash</button> • 
+                <button onclick="activeJobFilters.city = 'Farg‘ona'; switchTab('jobs'); renderJobsList();" class="text-indigo-600 hover:underline font-semibold">Farg‘ona shahar</button> • 
+                <button onclick="activeJobFilters.city = 'Marg‘ilon'; switchTab('jobs'); renderJobsList();" class="text-indigo-600 hover:underline font-semibold">Marg‘ilon</button>
+              </div>
+
+              <button id="hero-search-btn" class="w-full sm:w-auto px-8 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-100">
+                Yordamchi qidirish
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Stats Container -->
+          <div id="hero-stats-container" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-14 max-w-5xl mx-auto">
+            <!-- Dynamically populated -->
+          </div>
+
+        </div>
+      </div>
+
+      <!-- WHITEBOARD CONCEPT HIGHLIGHT SECTION -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
+          
+          <div class="relative z-10 max-w-3xl">
+            <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider">
+              Doskadagi Model: 3 Asosiy Qoida
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-black mt-3 leading-snug">
+              "Imkon" qanday qilib ish beruvchi va yordamchini bog‘laydi?
+            </h2>
+          </div>
+
+          <!-- 3 Columns Diagram mimicking the whiteboard arrows -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 relative z-10">
+            
+            <!-- Box 1: Yordamchi -->
+            <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/15">
+              <div class="text-3xl mb-2">🧹</div>
+              <h3 class="text-lg font-black text-white mb-1">1. Yordamchi</h3>
+              <p class="text-emerald-300 text-xs font-bold mb-2">Tozalaydi, necha soat ishlashi aniqlanadi</p>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Vazifasi aniq ko‘rsatiladi: xonadonni tozalash, do‘kon ishlari, yuk tashish yoki hovli tozalash. Ishchi kuniga necha soat (masalan, 3 soat, 5 soat yoki 8 soat) ishlashini oldindan biladi.
+              </p>
+            </div>
+
+            <!-- Box 2: Ish haqi -->
+            <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/15">
+              <div class="text-3xl mb-2">💰</div>
+              <h3 class="text-lg font-black text-white mb-1">2. Ish haqi</h3>
+              <p class="text-amber-300 text-xs font-bold mb-2">Bir kunda 150 ming gacha to‘lash kerak</p>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Hech qanday noaniqlik yo‘q. Ish haqi kunbay belgilanadi va kun yakunida naqd pul yoki kartaga to‘liq beriladi. 1 kunda 100 000 dan 150 000 so‘mgacha kafolatlangan to‘lov.
+              </p>
+            </div>
+
+            <!-- Box 3: Qayerga borish -->
+            <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/15">
+              <div class="text-3xl mb-2">📍</div>
+              <h3 class="text-lg font-black text-white mb-1">3. Qayerga borish</h3>
+              <p class="text-cyan-300 text-xs font-bold mb-2">Misol uchun: Farg‘ona viloyati ichida ishlaydi</p>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Yordamchi va ish beruvchi bitta hududda bo‘ladi. Farg‘ona shahri, Marg‘ilon, Qo‘qon, Rishton yoki Quvasoy bo‘yicha aniq mo‘ljal va manzil ko‘rsatiladi.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ENG YANGI ISH E'LONLARI (RECENT JOBS) -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+          <div>
+            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Dolzarb Vakansiyalar</span>
+            <h2 class="text-2xl font-black text-slate-900 mt-1">Farg‘ona viloyatidagi yangi e’lonlar</h2>
+          </div>
+          <button onclick="switchTab('jobs')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+            <span>Barcha e’lonlarni ko‘rish</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <div id="home-recent-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 2. ISH TOPISH (KUNLIK VA SOATLIK ISHLAR)    -->
+    <!-- ========================================== -->
+    <section id="view-jobs" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      
+      <div class="mb-8">
+        <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Kunlik va Soatlik Ishlar</span>
+        <h1 class="text-3xl font-black text-slate-900 mt-1">Yordamchilik va Tozalash Vakansiyalari</h1>
+        <p class="text-sm text-slate-600 mt-1">Kunlik 150 000 so‘mgacha ish haqi va aniq belgilangan ish soatlari.</p>
+      </div>
+
+      <!-- Hudud va Kategoriya Filtrlari -->
+      <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm mb-8 space-y-4">
+        
+        <!-- Search bar -->
+        <div class="flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200">
+          <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="jobs-search-input" placeholder="Ish turi (masalan: tozalash, hovli, yuk) yoki manzil yozing..." class="bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none w-full font-medium">
+        </div>
+
+        <!-- City (Qayerga borish) filter buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-bold text-slate-500 mr-2">📍 Qayerga borish (Farg‘ona viloyati):</span>
+          <button data-city-filter="all" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm">Barchasi</button>
+          <button data-city-filter="Farg‘ona" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:border-indigo-400 transition-all">Farg‘ona shahar</button>
+          <button data-city-filter="Marg‘ilon" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:border-indigo-400 transition-all">Marg‘ilon shahar</button>
+          <button data-city-filter="Qo‘qon" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:border-indigo-400 transition-all">Qo‘qon shahar</button>
+          <button data-city-filter="Rishton" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:border-indigo-400 transition-all">Rishton tumani</button>
+          <button data-city-filter="Quvasoy" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:border-indigo-400 transition-all">Quvasoy shahar</button>
+        </div>
+
+        <!-- Category filter buttons -->
+        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+          <span class="text-xs font-bold text-slate-500 mr-2">🧹 Yordamchi vazifasi:</span>
+          <button data-category-filter="all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white">Barchasi</button>
+          <button data-category-filter="tozalash" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Uylarni tozalash (Cleaning)</button>
+          <button data-category-filter="yordamchi" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Do‘kon & Usta yordamchisi</button>
+          <button data-category-filter="oshxona" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Oshxona & Idish yuvish</button>
+          <button data-category-filter="bogbon" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Hovli & Bog‘ ishlari</button>
+        </div>
+
+      </div>
+
+      <!-- Count -->
+      <div class="flex items-center justify-between mb-4">
+        <span id="jobs-total-count" class="text-xs font-bold text-slate-500">6 ta ish e’loni mavjud</span>
+      </div>
+
+      <!-- Jobs List -->
+      <div id="jobs-list-container" class="space-y-4">
+        <!-- Dynamically rendered -->
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. YORDAMCHILAR (HELPERS DIRECTORY)        -->
+    <!-- ========================================== -->
+    <section id="view-helpers" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Ishonchli Yordamchilar</span>
+          <h1 class="text-3xl font-black text-slate-900 mt-1">Farg‘ona bo‘yicha yordamchilar katalogi</h1>
+          <p class="text-sm text-slate-600 mt-1">O‘z uyingiz yoki biznesingiz uchun tajribali tozalovchi va yordamchilarni chaqiring.</p>
+        </div>
+
+        <button onclick="openPostOpportunityModal()" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-100 flex items-center gap-2 self-start sm:self-auto">
+          <span>+ Yordamchi chaqirish</span>
+        </button>
+      </div>
+
+      <!-- Helpers Grid -->
+      <div id="helpers-grid-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Dynamically rendered -->
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. TA'LIM & QO'LLANMALAR                   -->
+    <!-- ========================================== -->
+    <section id="view-education" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      
+      <div class="mb-8">
+        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Kasb-hunar & Ta'lim</span>
+        <h1 class="text-3xl font-black text-slate-900 mt-1">Bepul Qo‘llanmalar va Amaliy Darslar</h1>
+        <p class="text-sm text-slate-600 mt-1">Tozalash ishlari, mijozlar bilan muloqot va mehnat xavfsizligi bo‘yicha bepul yo‘riqnomalar.</p>
+      </div>
+
+      <div id="edu-guides-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Dynamically rendered -->
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 5. SHAXSIY KABINET (DASHBOARD)             -->
+    <!-- ========================================== -->
+    <section id="view-dashboard" class="view-section hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      
+      <!-- Profile Header -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm mb-8">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          
+          <div class="flex items-center gap-5">
+            <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-600 to-emerald-500 text-white flex items-center justify-center text-3xl font-black shadow-lg">
+              Sh
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 id="dash-profile-name" class="text-2xl font-black text-slate-900">Sherzodbek Qodirov</h2>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                  ✓ Tasdiqlangan Yordamchi
+                </span>
+              </div>
+              <p id="dash-profile-role" class="text-sm font-semibold text-indigo-600 mt-0.5">Yordamchi mutaxassis (Farg‘ona)</p>
+              
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mt-2">
+                <span>📍 <span id="dash-profile-location">Farg‘ona viloyati, Farg‘ona shahar</span></span>
+                <span>📞 <span id="dash-profile-phone">+998 90 765-43-21</span></span>
+                <span class="text-emerald-600 font-bold">💰 <span id="dash-profile-wage">Kuniga 150 000 so‘m</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="openPostOpportunityModal()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-100">
+              + E'lon berish
+            </button>
+          </div>
+
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-slate-100">
+          <p id="dash-profile-bio" class="text-xs text-slate-600 leading-relaxed mb-4">
+            Farg‘ona viloyati hududida kunlik tozalash, xonadon ishlari va do‘konlarga yordamchilik ishlarini mas’uliyat bilan bajaraman.
+          </p>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-bold text-slate-500">Bajaradigan ishlari:</span>
+            <div id="dash-profile-skills" class="flex flex-wrap gap-1.5">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtabs -->
+      <div class="flex items-center gap-2 mb-6 border-b border-slate-200 pb-3">
+        <button data-dash-tab="saved" onclick="switchDashboardTab('saved')" class="px-4 py-2 rounded-2xl font-bold text-xs bg-indigo-600 text-white shadow-sm">
+          📌 Saqlangan ishlar
+        </button>
+        <button data-dash-tab="applications" onclick="switchDashboardTab('applications')" class="px-4 py-2 rounded-2xl font-semibold text-xs text-slate-600 hover:bg-slate-100 transition-colors">
+          📞 Bog‘langan ishlarim
+        </button>
+        <button data-dash-tab="notifications" onclick="switchDashboardTab('notifications')" class="px-4 py-2 rounded-2xl font-semibold text-xs text-slate-600 hover:bg-slate-100 transition-colors">
+          🔔 Bildirishnomalar
+        </button>
+      </div>
+
+      <div id="dash-section-saved" class="space-y-4">
+        <div id="dash-saved-container"></div>
+      </div>
+
+      <div id="dash-section-applications" class="hidden space-y-4">
+        <div id="dash-applications-container"></div>
+      </div>
+
+      <div id="dash-section-notifications" class="hidden space-y-3">
+        <div id="dash-notifications-container" class="max-w-2xl"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-white pt-12 pb-8 border-t border-slate-800 mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black">I</div>
+            <span class="text-xl font-black">Imkon</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Yordamchi, tozalash va kunlik ishlar platformasi. Bir kunda 150 000 so‘mgacha daromad va aniq ish soatlari. Farg‘ona viloyati bo‘yicha xizmat.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-white mb-3">Farg‘ona hududlari</h4>
+          <ul class="space-y-1.5 text-xs text-slate-400">
+            <li>📍 Farg‘ona shahar</li>
+            <li>📍 Marg‘ilon shahar</li>
+            <li>📍 Qo‘qon shahar</li>
+            <li>📍 Rishton va Quvasoy</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-white mb-3">Aloqa</h4>
+          <p class="text-xs text-slate-400">📞 +998 73 200-00-00</p>
+          <p class="text-xs text-slate-400 mt-1">✉️ aloqa@imkon.uz</p>
+          <p class="text-xs text-emerald-400 font-bold mt-2">Telegram: @imkon_fargona</p>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
+        © 2026 Imkon. Doska konsepsiyasi asosida to‘liq ishlab chiqildi.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- MODALS                                     -->
+  <!-- ========================================== -->
+
+  <!-- 1. BOG'LANISH / ARIZA MODALI -->
+  <div id="modal-apply" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="modal-content bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button data-close-modal class="absolute top-6 right-6 p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Ish beruvchi bilan bog‘lanish</span>
+      <h3 id="apply-item-title" class="text-lg font-black text-slate-900 mt-1">Xonadonni tozalashga yordamchi</h3>
+
+      <div class="my-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-500">💰 Ish haqi:</span>
+          <span id="apply-item-wage" class="font-extrabold text-emerald-600">150 000 so‘m / kun</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">⏱️ Ish vaqti:</span>
+          <span id="apply-item-hours" class="font-bold text-slate-800">5 soat</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">📍 Qayerga borish:</span>
+          <span id="apply-item-location" class="font-bold text-slate-800">Farg‘ona shahar</span>
+        </div>
+        <div class="flex justify-between pt-2 border-t border-slate-200">
+          <span class="text-slate-500">📞 Ish beruvchi telefoni:</span>
+          <span id="apply-item-phone" class="font-extrabold text-indigo-600">+998 90 555-12-34</span>
+        </div>
+      </div>
+
+      <form id="apply-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Ism va familiyangiz</label>
+          <input type="text" id="apply-name" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Telefon raqamingiz (Aloqa uchun)</label>
+          <input type="tel" id="apply-phone" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold">
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-100">
+          Qo‘ng‘iroq qilish va ariza qoldirish
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. DETAIL MODAL -->
+  <div id="modal-detail" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="modal-content bg-white w-full max-w-xl rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button data-close-modal class="absolute top-6 right-6 p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div id="detail-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- 3. YORDAMCHI CHAQIRISH / E'LON BERISH (DOSKA TALABLARI BO'YICHA) -->
+  <div id="modal-post-opportunity" class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="modal-content bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button data-close-modal class="absolute top-6 right-6 p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Yordamchi chaqirish</span>
+      <h3 class="text-xl font-black text-slate-900 mt-1 mb-4">Ish e’lonini joylashtirish</h3>
+
+      <form id="post-opportunity-form" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">E'lon sarlavhasi</label>
+          <input type="text" id="post-title" required placeholder="Masalan: Hovli va xonadonni tozalashga yordamchi" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-indigo-700 mb-1">1. Yordamchi nima ish qiladi? (Vazifasi)</label>
+          <input type="text" id="post-task" required placeholder="Masalan: Pol va derazalarni tozalaydi, chang artadi" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-amber-700 mb-1">2. Necha soat ishlashi kerak?</label>
+            <input type="text" id="post-hours" required placeholder="Masalan: 4 soat (14:00 - 18:00)" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-emerald-700 mb-1">3. Ish haqi (bir kunda)</label>
+            <input type="text" id="post-wage" required value="150 000 so‘m / kun" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-emerald-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-indigo-700 mb-1">4. Qayerga borish kerak? (Hudud & Aniq manzil)</label>
+          <input type="text" id="post-location" required placeholder="Farg‘ona viloyati, Marg‘ilon shahar, Vokzal yaqini" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Ismingiz</label>
+            <input type="text" id="post-employer" required placeholder="Masalan: Anvar aka" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Telefon raqamingiz</label>
+            <input type="tel" id="post-phone" required placeholder="+998 90 123-45-67" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md shadow-indigo-100">
+          E'lonni chop etish
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
